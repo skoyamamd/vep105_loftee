@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir vep_data/
+
 # Download VEP cache
 curl -SL https://ftp.ensembl.org/pub/release-105/variation/indexed_vep_cache/homo_sapiens_vep_105_GRCh38.tar.gz -o vep_data/homo_sapiens_vep_105_GRCh38.tar.gz
 
