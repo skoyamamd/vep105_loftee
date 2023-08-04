@@ -29,4 +29,4 @@ RUN mkdir -p /loftee && \
 ENV PERL5LIB /loftee:$PERL5LIB
 
 # Install plugins
-INSTALL.pl -a p -s homo_sapiens -y GRCh38 -n -g all
+RUN INSTALL.pl -a p -s homo_sapiens -y GRCh38 -n -g all
