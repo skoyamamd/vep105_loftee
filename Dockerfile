@@ -1,6 +1,17 @@
 # Use the ensembl-vep as a base
 FROM ensemblorg/ensembl-vep:release_105.0
 
+USER root
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    libncurses5-dev \
+    libbz2-dev \
+    liblzma-dev \
+    zlib1g-dev \
+    libcurl4-openssl-dev \
+    libssl-dev
+
 # Install SamTools
 RUN mkdir -p /tmp/samtools && \
     curl -sSL https://github.com/samtools/samtools/releases/download/1.18/samtools-1.18.tar.bz2 | tar -jx -C /tmp/samtools --strip-components=1 && \
@@ -16,5 +27,3 @@ RUN mkdir -p /loftee && \
 
 # Add loftee to PERL5LIB
 ENV PERL5LIB /loftee:$PERL5LIB
-
-
