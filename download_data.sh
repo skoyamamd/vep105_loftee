@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Download VEP cache
+curl -SL https://ftp.ensembl.org/pub/release-105/variation/indexed_vep_cache/homo_sapiens_vep_105_GRCh38.tar.gz -o vep_data/homo_sapiens_vep_105_GRCh38.tar.gz
+
 # Download necessary files for LOFTEE
 mkdir -p vep_data && \
 curl -SL https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/loftee.sql.gz -o vep_data/loftee.sql.gz && \
