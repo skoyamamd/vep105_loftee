@@ -12,6 +12,7 @@ vep_cmd="vep \
     --no_stats \
     --offline \
     --cache \
+    --dir_cache /vep_data \
     --assembly GRCh38 \
     --dir_plugins / \
     --plugin dbNSFP,/vep_data/dbNSFP4.3a_grch38.gz,REVEL_score,CADD_phred \
