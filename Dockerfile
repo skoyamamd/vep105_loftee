@@ -1,4 +1,4 @@
-# Use the ensembl-vep as a base
+#Use the ensembl-vep as a base
 FROM ensemblorg/ensembl-vep:release_105.0
 
 USER root
@@ -27,3 +27,6 @@ RUN mkdir -p /loftee && \
 
 # Add loftee to PERL5LIB
 ENV PERL5LIB /loftee:$PERL5LIB
+
+# Install plugins
+INSTALL.pl -a p -s homo_sapiens -y GRCh38 -n -g all
