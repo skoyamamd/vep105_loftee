@@ -1,32 +1,51 @@
-#Use the ensembl-vep as a base
-FROM ensemblorg/ensembl-vep:release_105.0
+# Dockerfile adapted from https://github.com/populationgenomics/images/blob/main/images/vep/Dockerfile
 
-USER root
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    libncurses5-dev \
-    libbz2-dev \
-    liblzma-dev \
-    zlib1g-dev \
-    libcurl4-openssl-dev \
-    libssl-dev
+FROM debian:bookworm-slim
 
-# Install SamTools
-RUN mkdir -p /tmp/samtools && \
-    curl -sSL https://github.com/samtools/samtools/releases/download/1.18/samtools-1.18.tar.bz2 | tar -jx -C /tmp/samtools --strip-components=1 && \
-    cd /tmp/samtools && \
-    ./configure --prefix=/usr/local && \
-    make && \
-    make install && \
-    rm -rf /tmp/samtools
+ENV MAMBA_ROOT_PREFIX=/root/micromamba
+ENV PATH=$MAMBA_ROOT_PREFIX/bin:$PATH
+ARG VERSION=${VERSION:-105.0}
 
-# Install LOFTEE
-RUN mkdir -p /loftee && \
-    curl -sSL https://github.com/konradjk/loftee/archive/refs/tags/v1.0.4_GRCh38.tar.gz | tar -xz -C /loftee --strip-components=1
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y \
+      bash \
+      bzip2 \
+      curl \
+      git \
+      gnupg2 \
+      lsb-release \
+      wget \
+      zip && \
+    rm -r /var/lib/apt/lists/* && \
+    rm -r /var/cache/apt/*
 
-# Add loftee to PERL5LIB
-ENV PERL5LIB /loftee:$PERL5LIB
+# Install micromamba 
+RUN wget -qO- https://api.anaconda.org/download/conda-forge/micromamba/0.8.2/linux-64/micromamba-0.8.2-he9b6cbd_0.tar.bz2 | tar -xvj -C /usr/local bin/micromamba && \
+    mkdir $MAMBA_ROOT_PREFIX && \    
+    micromamba install -y --prefix $MAMBA_ROOT_PREFIX -c bioconda -c conda-forge \
+      ensembl-vep=${VERSION} \
+      google-cloud-sdk
 
-# Install plugins
-RUN INSTALL.pl -a p -s homo_sapiens -y GRCh38 -n -g all
+# Install Loftee dependencies
+RUN micromamba install -y --prefix $MAMBA_ROOT_PREFIX -c bioconda -c conda-forge \    
+      perl-bio-bigfile \
+      perl-dbd-sqlite \
+      perl-list-moreutils \
+      samtools 
+
+# Install and configure Loftee
+RUN rm -r /root/micromamba/pkgs && \
+    VEP_SHARE=$MAMBA_ROOT_PREFIX/share/ensembl-vep-$VERSION-* && \
+    # Remove broken LOFTEE files
+    rm $VEP_SHARE/TissueExpression.pm $VEP_SHARE/ancestral.pm $VEP_SHARE/context.pm $VEP_SHARE/de_novo_donor.pl $VEP_SHARE/extended_splice.pl $VEP_SHARE/gerp_dist.pl $VEP_SHARE/loftee_splice_utils.pl $VEP_SHARE/splice_site_scan.pl $VEP_SHARE/svm.pl $VEP_SHARE/utr_splice.pl && \
+    # Install new LOFTEE 
+    git clone https://github.com/populationgenomics/loftee_38.git && \
+    cp -r loftee_38/* $VEP_SHARE && \
+    rm -rf loftee_38 && \
+    echo "export PERL5LIB=$MAMBA_ROOT_PREFIX/share/ensembl-vep" >> ~/.bashrc && \
+    echo "export LOFTEE_PLUGIN_PATH=$MAMBA_ROOT_PREFIX/share/ensembl-vep" >> ~/.bashrc
+
+# Install BioPerl for Loftee
+RUN vep_install --AUTO a --NO_UPDATE --NO_HTSLIB && \
+    ln -fs $MAMBA_ROOT_PREFIX/share/ensembl-vep-$VERSION* $MAMBA_ROOT_PREFIX/share/ensembl-vep
