@@ -12,8 +12,9 @@ vep_cmd="vep \
     --no_stats \
     --offline \
     --cache \
+    --dir_cache /vep_data \
     --assembly GRCh38 \
-    --dir_plugins / \
+    --dir_plugins /root/.vep/Plugins/ \
     --plugin dbNSFP,/vep_data/dbNSFP4.3a_grch38.gz,REVEL_score,CADD_phred \
     --plugin LoF,loftee_path:/loftee,human_ancestor_fa:/vep_data/human_ancestor.fa.gz,conservation_file:/vep_data/loftee.sql,gerp_bigwig:/vep_data/gerp_conservation_scores.homo_sapiens.GRCh38.bw"
 
