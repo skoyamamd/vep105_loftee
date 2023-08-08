@@ -40,11 +40,9 @@ RUN rm -r /opt/micromamba/pkgs && \
     git clone https://github.com/populationgenomics/loftee_38.git && \
     cp -r loftee_38/* $VEP_SHARE && \
     rm -rf loftee_38 && \
-    echo "export PERL5LIB=$MAMBA_ROOT_PREFIX/share/ensembl-vep" >> /etc/bash.bashrc && \
+    echo "export PERL5LIB=/:$MAMBA_ROOT_PREFIX/share/ensembl-vep" >> /etc/bash.bashrc && \
     echo "export LOFTEE_PLUGIN_PATH=$MAMBA_ROOT_PREFIX/share/ensembl-vep" >> /etc/bash.bashrc
 
 # Install BioPerl for Loftee
 RUN vep_install --AUTO a --NO_UPDATE --NO_HTSLIB && \
     ln -fs $MAMBA_ROOT_PREFIX/share/ensembl-vep-$VERSION* $MAMBA_ROOT_PREFIX/share/ensembl-vep
-
-RUN export PERL5LIB=/:$PERL5LIB
