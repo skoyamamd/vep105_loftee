@@ -46,3 +46,5 @@ RUN rm -r /opt/micromamba/pkgs && \
 # Install BioPerl for Loftee
 RUN vep_install --AUTO a --NO_UPDATE --NO_HTSLIB && \
     ln -fs $MAMBA_ROOT_PREFIX/share/ensembl-vep-$VERSION* $MAMBA_ROOT_PREFIX/share/ensembl-vep
+
+RUN mv /Bio /opt/micromamba/share/ensembl-vep-105.0-1/modules/
