@@ -44,7 +44,5 @@ RUN rm -r /opt/micromamba/pkgs && \
     echo "export LOFTEE_PLUGIN_PATH=$MAMBA_ROOT_PREFIX/share/ensembl-vep" >> /etc/bash.bashrc
 
 # Install BioPerl for Loftee
-RUN vep_install --AUTO a --NO_UPDATE --NO_HTSLIB && \
+RUN vep_install --AUTO a --NO_UPDATE --NO_HTSLIB --DESTDIR $MAMBA_ROOT_PREFIX/share/ensembl-vep-$VERSION* && \
     ln -fs $MAMBA_ROOT_PREFIX/share/ensembl-vep-$VERSION* $MAMBA_ROOT_PREFIX/share/ensembl-vep
-
-RUN mv /Bio /opt/micromamba/share/ensembl-vep-105.0-1/modules/
