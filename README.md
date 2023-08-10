@@ -1,5 +1,8 @@
 ## VEP 105, LOFTEE
 
+*This repo is part 1 of the full BRaVa annotation pipeline - instructions for the full pipeline - [variant annotation repo](https://github.com/BRaVa-genetics/variant-annotation)*
+
+
 Annotate your variant sites using VEP, ready for processing into SAIGE group files.
 
 ### Docker
