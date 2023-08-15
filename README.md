@@ -63,7 +63,7 @@ singularity exec \
 
 ### Post-processing
 
-Now we need to select the "worst consequence by gene, canonical" variant annotations. We reccomend using the bcftools vep-split plugin:
+Now we need to select the "worst consequence by gene, canonical" variant annotations. We recommend using the bcftools vep-split plugin:
 
 ```
 chr=21
