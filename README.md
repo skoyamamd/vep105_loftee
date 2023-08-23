@@ -17,6 +17,7 @@ docker pull ghcr.io/brava-genetics/vep105_loftee:main
 chr=21
 
 cmd="vep -i resources/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf \
+         --assembly GRCh38 \
          --mane_select \
          --vcf \
          --format vcf \
@@ -45,6 +46,7 @@ singularity pull --docker-login -disable-cache "resources/vep.sif" "docker://ghc
 chr=21
 
 cmd="vep -i resources/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf \
+         --assembly GRCh38 \
          --vcf
          --format vcf \
          --cache \
@@ -66,9 +68,8 @@ singularity exec \
 Now we need to select the "worst consequence by gene, canonical" variant annotations. We recommend using the bcftools vep-split plugin:
 
 ```
-chr=21
+bgzip out/ukb_wes_450k.qced.chr${chr}.vep.vcf
+tabix out/ukb_wes_450k.qced.chr${chr}.vep.vcf.gz
 
-bcftools +split-vep ukb_wes_450k.qced.chr${chr}_vep_output_head.vcf.gz -s worst -s primary -f '%CHROM:%POS:%REF:%ALT %Gene %LoF %MAX_AF %REVEL_score %CADD_phred %Consequence\n' -o ukb_wes_450k.qced.${chr}.worst_csq_by_gene_canonical.txt -i 'MANE_SELECT~"NM*"'
-
-sed -i '1i SNP_ID GENE LOF MAX_AF REVEL_SCORE CADD_PHRED CSQ' ukb_wes_450k.qced.chr${chr}.worst_csq_by_gene_canonical.txt
-```
+bcftools +split-vep out/ukb_wes_450k.qced.chr${chr}.vep.vcf.gz -d -f '%CHROM:%POS:%REF:%ALT %Gene %LoF %MAX_AF %REVEL_score %CADD_phred %Consequence %Feature %MANE_SELECT %CANONICAL %BIOTYPE\n' -o out/ukb_wes_450k.qced.chr${chr}.vep_processed.txt
+sed -i '1i SNP_ID GENE LOF MAX_AF REVEL_SCORE CADD_PHRED CSQ TRANSCRIPT MANE_SELECT CANONICAL BIOTYPE' out/ukb_wes_450k.qced.chr${chr}.vep_processed.txt```
