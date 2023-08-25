@@ -13,7 +13,7 @@ Pull the docker image built from the Dockerfile in this repository:
 ```
 docker pull ghcr.io/brava-genetics/vep105_loftee:main
 ```
-VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `resources/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf` and `out/ukb_wes_450k.qced.chr${chr}_vep_output.vcf` with the relevant input file and desired output filename, respectively to annotate your VCFs.
+VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `resources/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf` and `out/ukb_wes_450k.qced.chr${chr}_vep_output.vcf` with the relevant input file and desired output filename, respectively, to annotate your VCFs.
 ```
 chr=21
 cmd="vep -i vep_data/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf \
