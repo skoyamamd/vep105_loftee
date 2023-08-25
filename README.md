@@ -64,7 +64,7 @@ As with docker, in order for our singularity container to "see" the files requir
 
 ## Post-processing
 
-Now we need to select the "worst consequence by gene, canonical" variant annotations. To munge the data into a format to carry this out easily (with our python code in [SAIGE-annotations-for-BRaVa](https://github.com/BRaVa-genetics/SAIGE-annotations-for-BRaVa), we use the BCFtools vep-split plugin. If you don't have BCFtools (we'd be surprised though), go ahead and install it following the instructions [here](https://samtools.github.io/bcftools/howtos/install.html). In order to use the BCFtools plugins, the environment variable `BCFTOOLS_PLUGIN` must be set and point to the correct location:
+Now we need to select the "worst consequence by gene on the MANE SELECT transcript (if available) or the 'canonical' transcript (if MANE SELECT isn't available)" variant annotations (wow, what a mouthful). To munge the data into a format to carry this out easily (with our python code in [SAIGE-annotations-for-BRaVa](https://github.com/BRaVa-genetics/SAIGE-annotations-for-BRaVa), we use the BCFtools vep-split plugin. If you don't have BCFtools (we'd be surprised though), go ahead and install it following the instructions [here](https://samtools.github.io/bcftools/howtos/install.html). In order to use the BCFtools plugins, the environment variable `BCFTOOLS_PLUGIN` must be set and point to the correct location:
 
 ```
 export BCFTOOLS_PLUGINS=/path/to/bcftools/plugins
