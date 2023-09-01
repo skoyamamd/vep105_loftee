@@ -9,7 +9,7 @@ Before starting, ensure that the VCF has split multiallelic variants. If it has 
 wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz -P
 bcftools norm -m-any --check-ref w -f hg38.fa.gz input.vcf.gz -o input_split_multiallelic.vcf.gz -O z
 ```
-Also, ensure that the variant IDs are defined by `#CHROM:POS:REF:ALT` in the sites only VCFs (if not, then the gnomAD variants with popmax AF > 0.01 will not be excluded!)
+Also, ensure that the variant IDs are defined by `CHROM:POS:REF:ALT` in the sites only VCFs (if not, then the gnomAD variants with popmax AF > 0.01 will not be excluded!)
 ```
 bcftools annotate --set-id +'%CHROM:%POS:%REF:%FIRST_ALT' input_split_multiallelic.vcf.gz -o input_split_multiallelic_renamed.vcf.gz -O z
 ```
