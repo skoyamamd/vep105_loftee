@@ -4,6 +4,20 @@
 
 Annotate your variant sites using VEP, ready for processing into SAIGE annotation group files.
 
+Before starting, ensure that the VCF has split multiallelic variants. If it has not, you will need to split-multiallelics in the VCF (including genotype data):
+```
+curl -SL ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
+bcftools norm -m-any --check-ref w -f GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz input.vcf.gz -o input_split_multiallelic.vcf.gz -O z
+```
+Also, ensure that the variant IDs are defined by `#CHROM:POS:REF:ALT` in the sites only VCFs (if not, then the gnomAD variants with popmax AF > 0.01 will not be excluded!)
+```
+bcftools annotate --set-id +'%CHROM:%POS:%REF:%FIRST_ALT' input_split_multiallelic.vcf.gz -o input_split_multiallelic_renamed.vcf.gz -O z
+```
+Finally, ensure that the VCF file that you pass to VEP is a sites only VCF with the genotype data removed:
+```
+bcftools view --drop-genotypes input_split_multiallelic.vcf.gz -O z -o sites_only_input_split_multiallelic.vcf.gz
+```
+
 ## Docker
 Download all required resources into vep_data/. This might take a while, are these files are quite large (many GB)!
 ```
@@ -13,16 +27,16 @@ Pull the docker image built from the Dockerfile in this repository:
 ```
 docker pull ghcr.io/brava-genetics/vep105_loftee:main
 ```
-VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `resources/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf` and `out/ukb_wes_450k.qced.chr${chr}_vep_output.vcf` with the relevant input file and desired output filename, respectively, to annotate your VCFs.
+VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz` and `out/sites_only_output_chr${chr}_vep.vcf` with the relevant input file and desired output filename, respectively, to annotate your sites only VCFs.
 ```
 chr=21
-cmd="vep -i vep_data/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf \
+cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz \
          --assembly GRCh38 \
          --vcf \
          --format vcf \
          --cache \
          --dir_cache vep_data/ \
-         -o out/ukb_wes_450k.qced.chr${chr}_vep_output.vcf \
+         -o out/sites_only_output_chr${chr}_vep.vcf \
          --plugin LoF,loftee_path:/opt/micromamba/share/ensembl-vep-105.0-1,human_ancestor_fa:vep_data/human_ancestor.fa.gz,conservation_file:vep_data/loftee.sql,gerp_bigwig:vep_data/gerp_conservation_scores.homo_sapiens.GRCh38.bw \
          --plugin dbNSFP,vep_data/dbNSFP4.3a_grch38.gz,REVEL_score,CADD_phred \
          --everything \
@@ -42,16 +56,16 @@ Pull docker image built from the Dockerfile in this repo and convert to a singul
 ```
 singularity pull --docker-login -disable-cache "vep_data/vep.sif" "docker://ghcr.io/brava-genetics/vep105_loftee:main"
 ```
-VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `resources/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf` and `out/ukb_wes_450k.qced.chr${chr}_vep_output.vcf` with the relevant input file and desired output filename, respectively to annotate your VCFs.
+VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz` and `out/sites_only_output_chr${chr}_vep.vcf` with the relevant input file and desired output filename, respectively, to annotate your sites only VCFs.
 ```
 chr=21
-cmd="vep -i vep_data/ukb_450k_wes/ukb_wes_450k.qced.chr${chr}.vcf \
+cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz \
          --assembly GRCh38 \
          --vcf
          --format vcf \
          --cache \
          --dir_cache vep_data/ \
-         -o out/ukb_wes_450k.qced.chr${chr}_vep_output.vcf \
+         -o out/sites_only_output_chr${chr}_vep.vcf \
          --plugin LoF,loftee_path:/opt/micromamba/share/ensembl-vep-105.0-1,human_ancestor_fa:vep_data/human_ancestor.fa.gz,conservation_file:vep_data/loftee.sql,gerp_bigwig:vep_data/gerp_conservation_scores.homo_sapiens.GRCh38.bw \
          --plugin dbNSFP,vep_data/dbNSFP4.3a_grch38.gz,REVEL_score,CADD_phred \
          --everything \
@@ -64,7 +78,7 @@ As with docker, in order for our singularity container to "see" the files requir
 
 ## Post-processing
 
-Now we need to determine the "worst consequence by gene on the MANE SELECT transcript (if available) or the 'canonical' transcript (if MANE SELECT isn't available)" variant annotations (wow, what a mouthful). To munge the data into a format to carry this out easily (with our python code in [SAIGE-annotations-for-BRaVa](https://github.com/BRaVa-genetics/SAIGE-annotations-for-BRaVa), we use the BCFtools vep-split plugin. If you don't have BCFtools (we'd be surprised though), go ahead and install it following the instructions [here](https://samtools.github.io/bcftools/howtos/install.html). In order to use the BCFtools plugins, the environment variable `BCFTOOLS_PLUGIN` must be set and point to the correct location:
+Now we need to determine the "worst consequence by gene on the MANE SELECT transcript (if available) or the 'canonical' transcript (if MANE SELECT isn't available)" variant annotations (wow, what a mouthful). To munge the data into a format to carry this out easily (with our python code in the [SAIGE_annotations directory of the variant-annotation repository](https://github.com/BRaVa-genetics/variant-annotation/tree/main/SAIGE_annotations), we use the BCFtools split-vep plugin). If you don't have BCFtools (we'd be surprised though), go ahead and install it following the instructions [here](https://samtools.github.io/bcftools/howtos/install.html). In order to use the BCFtools plugins, the environment variable `BCFTOOLS_PLUGIN` must be set and point to the correct location:
 
 ```
 export BCFTOOLS_PLUGINS=/path/to/bcftools/plugins
@@ -73,10 +87,11 @@ export BCFTOOLS_PLUGINS=/path/to/bcftools/plugins
 (replacing `/path/to/bcftools/plugins` with the path to your BCFtools plugins folder). It may already be set within your compute environment, so make sure to check that first!
 
 ```
-bgzip out/ukb_wes_450k.qced.chr${chr}.vep.vcf
-tabix out/ukb_wes_450k.qced.chr${chr}.vep.vcf.gz
+bgzip out/sites_only_output_chr${chr}_vep.vcf
+tabix out/sites_only_output_chr${chr}_vep.vcf.gz
+bcftools view -i'ID!=@vep_data/gnomad.exomes.r2.1.1.sites.liftover_grch38_popmax_0.01.tsv.bgz' out/sites_only_output_chr${chr}_vep.vcf.gz -o out/sites_only_output_chr${chr}_vep.gnomad_popmax_0.01.vcf.gz -O z
 
-bcftools +split-vep out/ukb_wes_450k.qced.chr${chr}.vep.vcf.gz -d -f '%CHROM:%POS:%REF:%ALT %Gene %LoF %MAX_AF %REVEL_score %CADD_phred %Consequence %Feature %MANE_SELECT %CANONICAL %BIOTYPE\n' -o out/ukb_wes_450k.qced.chr${chr}.vep_processed.txt
-sed -i '1i SNP_ID GENE LOF MAX_AF REVEL_SCORE CADD_PHRED CSQ TRANSCRIPT MANE_SELECT CANONICAL BIOTYPE' out/ukb_wes_450k.qced.chr${chr}.vep_processed.txt```
+bcftools +split-vep out/ukb_wes_450k.qced.chr${chr}.vep.vcf.gz -d -f '%CHROM:%POS:%REF:%ALT %Gene %LoF %REVEL_score %CADD_phred %Consequence %Feature %MANE_SELECT %CANONICAL %BIOTYPE\n' -o out/ukb_wes_450k.qced.chr${chr}.vep_processed.txt
+sed -i '1i SNP_ID GENE LOF REVEL_SCORE CADD_PHRED CSQ TRANSCRIPT MANE_SELECT CANONICAL BIOTYPE' out/ukb_wes_450k.qced.chr${chr}.vep.gnomad_popmax_0.01_processed.txt```
 ```
-The above command simply splits multiple transcript annotations for a given variant across multiple lines and then grabs a subset of columns that we need to define our annotations for the SAIGE group files, and gives them some nice names.
+The above commands exclude the set of variants in `vep_data/gnomad.exomes.r2.1.1.sites.liftover_grch38_popmax_0.01.tsv.bgz` (which are variants with a popmax > 0.01 in gnomAD v2), splits multiple transcript annotations for a given variant across multiple lines, grabs a subset of columns that we need to define our annotations for the SAIGE group files, and gives them some nice names.
