@@ -18,12 +18,13 @@ Finally, ensure that the VCF file that you pass to VEP is a sites only VCF with 
 ```
 bcftools view --drop-genotypes input_split_multiallelic.vcf.gz -O z -o sites_only_input_split_multiallelic.vcf.gz
 ```
-
-## Docker
+## VEP annotatation
 Download all required resources into vep_data/. This might take a while, are these files are quite large (many GB)!
 ```
 bash download_data.sh
 ```
+Now you have the choice between using Docker or Singularity containers. 
+### VEP annotation using Docker
 Pull the docker image built from the Dockerfile in this repository:
 ```
 docker pull ghcr.io/brava-genetics/vep105_loftee:main
@@ -48,11 +49,7 @@ docker run -v $(pwd):/$HOME/ -it vep_105_loftee $cmd
 ```
 Note that in order for the docker container to "see" the files required for VEP annotation, you will need to mount the directory containing the required resources and the VCF to be annotated. This is what `-v $(pwd):/$HOME/` is doing. If your VCF file to be annotated is located somewhere else, you will also need to mount the directory that it sits in, or move it to the current working directory (or any subfolder within the working directory) if you're using the above code as a template. `-it` runs our vep_105_loftee docker as an interactive process (like a shell), running the vep command (which we store as the variable `cmd`.
 
-## Singularity
-Download all required resources into vep_data/. This might take a while, are these files are quite large (many GB)!
-```
-bash download_data.sh
-```
+### VEP annotation using Singularity
 Pull docker image built from the Dockerfile in this repo and convert to a singularity.sif
 ```
 singularity pull --docker-login -disable-cache "vep_data/vep.sif" "docker://ghcr.io/brava-genetics/vep105_loftee:main"
