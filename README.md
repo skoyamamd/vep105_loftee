@@ -4,18 +4,18 @@
 
 Annotate your variant sites using VEP, ready for processing into SAIGE annotation group files.
 
-Before starting, ensure that the VCF has split multi-allelic variants. If it has not, you will need to split-multiallelics in the VCF (including genotype data):
+Before starting, ensure that the VCF has split multiallelic variants. If it has not, you will need to split-multiallelics in the VCF (including genotype data):
 ```
-bcftools norm -m-any --check-ref w -f hg38.fasta input.vcf.gz -o input_split_multiallelic.vcf.gz -O z
+curl -SL ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
+bcftools norm -m-any --check-ref w -f GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz input.vcf.gz -o input_split_multiallelic.vcf.gz -O z
 ```
 Also, ensure that the variant IDs are defined by `#CHROM:POS:REF:ALT` in the sites only VCFs (if not, then the gnomAD variants with popmax AF > 0.01 will not be excluded!)
 ```
 bcftools annotate --set-id +'%CHROM:%POS:%REF:%FIRST_ALT' input_split_multiallelic.vcf.gz -o input_split_multiallelic_renamed.vcf.gz -O z
 ```
-
 Finally, ensure that the VCF file that you pass to VEP is a sites only VCF with the genotype data removed:
 ```
-bcftools view --drop-genotypes input_split_multiallelic.vcf.gz -O z -o sites_only_output.vcf.gz
+bcftools view --drop-genotypes input_split_multiallelic.vcf.gz -O z -o sites_only_input_split_multiallelic.vcf.gz
 ```
 
 ## Docker
@@ -27,10 +27,10 @@ Pull the docker image built from the Dockerfile in this repository:
 ```
 docker pull ghcr.io/brava-genetics/vep105_loftee:main
 ```
-VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `vep_data/ukb_450k_wes/sites_only_output_chr${chr}.vcf.gz` and `out/sites_only_output_chr${chr}_vep_output.vcf.gz` with the relevant input file and desired output filename, respectively, to annotate your sites only VCFs.
+VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz` and `out/sites_only_output_chr${chr}_vep.vcf` with the relevant input file and desired output filename, respectively, to annotate your sites only VCFs.
 ```
 chr=21
-cmd="vep -i vep_data/ukb_450k_wes/sites_only_output_chr${chr}.vcf.gz \
+cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz \
          --assembly GRCh38 \
          --vcf \
          --format vcf \
@@ -56,10 +56,10 @@ Pull docker image built from the Dockerfile in this repo and convert to a singul
 ```
 singularity pull --docker-login -disable-cache "vep_data/vep.sif" "docker://ghcr.io/brava-genetics/vep105_loftee:main"
 ```
-VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `vep_data/ukb_450k_wes/sites_only_output_chr${chr}.vcf.gz` and `out/sites_only_output_chr${chr}_vep_output.vcf` with the relevant input file and desired output filename, respectively, to annotate your sites only VCFs.
+VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK Biobank data. Go ahead and replace `vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz` and `out/sites_only_output_chr${chr}_vep.vcf` with the relevant input file and desired output filename, respectively, to annotate your sites only VCFs.
 ```
 chr=21
-cmd="vep -i vep_data/ukb_450k_wes/sites_only_output_chr${chr}.vcf.gz \
+cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz \
          --assembly GRCh38 \
          --vcf
          --format vcf \
