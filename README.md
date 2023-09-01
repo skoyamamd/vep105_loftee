@@ -4,6 +4,13 @@
 
 Annotate your variant sites using VEP, ready for processing into SAIGE annotation group files.
 
+### Contents
+* [Pre-processing](#pre-processing)
+* [VEP annotatation](#vep-annotatation)
+  * [VEP annotation using Docker](#vep-annotation-using-docker)
+  * [VEP annotation using Singularity](#vep-annotation-using-singularity)
+* [Post-processing](#post-processing)
+
 ## Pre-processing
 Before starting, ensure that the VCF has split multiallelic variants. If it has not, you will need to split-multiallelics in the VCF (including genotype data):
 ```
