@@ -4,6 +4,7 @@
 
 Annotate your variant sites using VEP, ready for processing into SAIGE annotation group files.
 
+## Pre-processing
 Before starting, ensure that the VCF has split multiallelic variants. If it has not, you will need to split-multiallelics in the VCF (including genotype data):
 ```
 wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz -P
