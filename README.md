@@ -6,8 +6,8 @@ Annotate your variant sites using VEP, ready for processing into SAIGE annotatio
 
 Before starting, ensure that the VCF has split multiallelic variants. If it has not, you will need to split-multiallelics in the VCF (including genotype data):
 ```
-curl -SL ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz
-bcftools norm -m-any --check-ref w -f GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz input.vcf.gz -o input_split_multiallelic.vcf.gz -O z
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz -P
+bcftools norm -m-any --check-ref w -f hg38.fa.gz input.vcf.gz -o input_split_multiallelic.vcf.gz -O z
 ```
 Also, ensure that the variant IDs are defined by `#CHROM:POS:REF:ALT` in the sites only VCFs (if not, then the gnomAD variants with popmax AF > 0.01 will not be excluded!)
 ```
