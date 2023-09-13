@@ -5,11 +5,23 @@
 Annotate your variant sites using VEP, ready for processing into SAIGE annotation group files.
 
 ### Contents
+
+* [Requirements](#requirements)
 * [Pre-processing](#pre-processing)
 * [VEP annotatation](#vep-annotatation)
   * [VEP annotation using Docker](#vep-annotation-using-docker)
   * [VEP annotation using Singularity](#vep-annotation-using-singularity)
 * [Post-processing](#post-processing)
+
+## Requirements
+
+Required unix packages: `parallel`, `docker`, `bgzip` and `tabix` can be installed with:
+
+```
+sudo apt-get install parallel bcftools
+```
+
+Instructions on [installing Docker available here](https://docs.docker.com/engine/install/ubuntu/).
 
 ## Pre-processing
 Before starting, ensure that the VCF has split multiallelic variants. If it has not, you will need to split-multiallelics in the VCF (including genotype data):
@@ -44,15 +56,15 @@ cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.
          --vcf \
          --format vcf \
          --cache \
-         --dir_cache vep_data/ \
+         --dir_cache vep_data \
          -o out/sites_only_output_chr${chr}_vep.vcf \
          --plugin LoF,loftee_path:/opt/micromamba/share/ensembl-vep-105.0-1,human_ancestor_fa:vep_data/human_ancestor.fa.gz,conservation_file:vep_data/loftee.sql,gerp_bigwig:vep_data/gerp_conservation_scores.homo_sapiens.GRCh38.bw \
-         --plugin dbNSFP,vep_data/dbNSFP4.3a_grch38.gz,REVEL_score,CADD_phred \
+         --plugin dbNSFP,vep_data/dbNSFP/dbNSFP4.3a_variant.chr$chr.gz,REVEL_score,CADD_phred \
          --everything \
          --force_overwrite \
          --offline"
 
-docker run -v $(pwd):/$HOME/ -it vep_105_loftee $cmd
+docker run -v $(pwd):/$HOME/ -it ghcr.io/brava-genetics/vep105_loftee:main $cmd
 ```
 Note that in order for the docker container to "see" the files required for VEP annotation, you will need to mount the directory containing the required resources and the VCF to be annotated. This is what `-v $(pwd):/$HOME/` is doing. If your VCF file to be annotated is located somewhere else, you will also need to mount the directory that it sits in, or move it to the current working directory (or any subfolder within the working directory) if you're using the above code as a template. `-it` runs our vep_105_loftee docker as an interactive process (like a shell), running the vep command (which we store as the variable `cmd`.
 
@@ -66,13 +78,13 @@ VEP annotate your VCF files. Below is an example, annotating chromosome 21 in UK
 chr=21
 cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.vcf.gz \
          --assembly GRCh38 \
-         --vcf
+         --vcf \
          --format vcf \
          --cache \
-         --dir_cache vep_data/ \
+         --dir_cache vep_data \
          -o out/sites_only_output_chr${chr}_vep.vcf \
          --plugin LoF,loftee_path:/opt/micromamba/share/ensembl-vep-105.0-1,human_ancestor_fa:vep_data/human_ancestor.fa.gz,conservation_file:vep_data/loftee.sql,gerp_bigwig:vep_data/gerp_conservation_scores.homo_sapiens.GRCh38.bw \
-         --plugin dbNSFP,vep_data/dbNSFP4.3a_grch38.gz,REVEL_score,CADD_phred \
+         --plugin dbNSFP,vep_data/dbNSFP/dbNSFP4.3a_variant.chr$chr.gz,REVEL_score,CADD_phred \
          --everything \
          --force_overwrite \
          --offline"
