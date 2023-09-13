@@ -64,7 +64,7 @@ cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.
          --force_overwrite \
          --offline"
 
-docker run -v $(pwd):/$HOME/ -it ghcr.io/brava-genetics/vep105_loftee:main $cmd
+docker run -v $(pwd):/$HOME/ -w $HOME -it ghcr.io/brava-genetics/vep105_loftee:main $cmd
 ```
 Note that in order for the docker container to "see" the files required for VEP annotation, you will need to mount the directory containing the required resources and the VCF to be annotated. This is what `-v $(pwd):/$HOME/` is doing. If your VCF file to be annotated is located somewhere else, you will also need to mount the directory that it sits in, or move it to the current working directory (or any subfolder within the working directory) if you're using the above code as a template. `-it` runs our vep_105_loftee docker as an interactive process (like a shell), running the vep command (which we store as the variable `cmd`.
 
@@ -89,7 +89,7 @@ cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.
          --force_overwrite \
          --offline"
 
-singularity exec --bind $(pwd):$HOME/ "vep_data/vep.sif" $cmd
+singularity exec --bind $(pwd):$HOME/ -W $HOME "vep_data/vep.sif" $cmd
 ```
 As with docker, in order for our singularity container to "see" the files required for VEP annotation, you will need to mount the directory containing the required resources and the VCF to be annotated. This is what `--bind $(pwd):$HOME/` is doing. If your VCF file to be annotated is located somewhere else, you will also need to mount the directory that it sits in, or move it to the current working directory (or any subfolder within the working directory) if you're using the above code as a template. `exec` executes the command `cmd` (our VEP command) within the singularity container `vep.sif` that we've created.
 
