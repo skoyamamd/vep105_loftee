@@ -1,5 +1,8 @@
 #!/bin/bash
 
+mkdir out/
+mkdir -p vep_data/dbNSFP/
+
 # Download VEP cache
 echo "Downloading VEP cache..."
 
