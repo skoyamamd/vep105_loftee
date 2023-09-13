@@ -25,8 +25,14 @@ curl -SL https://dbnsfp.s3.amazonaws.com/dbNSFP4.3a.zip -o vep_data/dbNSFP4.3a.z
 
 echo "Extracting downloaded files..."
 tar -xvzf vep_data/homo_sapiens_vep_105_GRCh38.tar.gz -C vep_data/
-unzip vep_data/dbNSFP4.3a.zip -d vep_data/
-gunzip vep_data/loftee.sql.gz
 
-echo "Converting dbNSFP into bgzipped and indexed vcf files (parallelised)"
-find ./vep_data -name "dbNSFP4.3a_variant.chr*.gz" | parallel --progress 'mkdir -p ./vep_data/dbNSFP && gunzip -c {} | bgzip -c > ./vep_data/dbNSFP/{/.}.gz && tabix -p vcf ./vep_data/dbNSFP/{/.}.gz'
+# convert dbNSFP file - see dbNSFP section in https://www.ensembl.org/info/docs/tools/vep/script/vep_example.html
+
+unzip vep_data/dbNSFP4.3a.zip -d vep_data/
+head -n1 vep_data/dbNSFP4.3a_variant.chr1 > vep_data/dbNSFP4.3a.txt
+cat vep_data/dbNSFP4.3a_variant.chr* | grep -v "#" >> vep_data/dbNSFP4.3a.txt
+rm vep_data/dbNSFP4.3a_variant.chr*
+bgzip vep_data/dbNSFP4.3a.txt
+tabix -s 1 -b 2 -e 2 vep_data/dbNSFP4.3a.txt.gz
+
+gunzip vep_data/loftee.sql.gz
