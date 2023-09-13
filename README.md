@@ -15,10 +15,10 @@ Annotate your variant sites using VEP, ready for processing into SAIGE annotatio
 
 ## Requirements
 
-Required unix packages: `parallel`, `docker`, `tabix` and `bcftools` can be installed with:
+Required unix packages: `docker`, `tabix` and `bcftools` can be installed with:
 
 ```
-sudo apt-get install parallel tabix bcftools
+sudo apt-get install tabix bcftools
 ```
 
 Instructions on [installing Docker available here](https://docs.docker.com/engine/install/ubuntu/).
