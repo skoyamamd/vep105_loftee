@@ -59,7 +59,7 @@ cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.
          --dir_cache vep_data \
          -o out/sites_only_output_chr${chr}_vep.vcf \
          --plugin LoF,loftee_path:/opt/micromamba/share/ensembl-vep-105.0-1,human_ancestor_fa:vep_data/human_ancestor.fa.gz,conservation_file:vep_data/loftee.sql,gerp_bigwig:vep_data/gerp_conservation_scores.homo_sapiens.GRCh38.bw \
-         --plugin dbNSFP,vep_data/dbNSFP/dbNSFP4.3a_variant.chr$chr.gz,REVEL_score,CADD_phred \
+         --plugin dbNSFP,vep_data/dbNSFP4.3a.txt.gz,REVEL_score,CADD_phred \
          --everything \
          --force_overwrite \
          --offline"
@@ -84,7 +84,7 @@ cmd="vep -i vep_data/ukb_450k_wes/sites_only_input_split_multiallelic_chr${chr}.
          --dir_cache vep_data \
          -o out/sites_only_output_chr${chr}_vep.vcf \
          --plugin LoF,loftee_path:/opt/micromamba/share/ensembl-vep-105.0-1,human_ancestor_fa:vep_data/human_ancestor.fa.gz,conservation_file:vep_data/loftee.sql,gerp_bigwig:vep_data/gerp_conservation_scores.homo_sapiens.GRCh38.bw \
-         --plugin dbNSFP,vep_data/dbNSFP/dbNSFP4.3a_variant.chr$chr.gz,REVEL_score,CADD_phred \
+         --plugin dbNSFP,vep_data/dbNSFP4.3a.txt.gz,REVEL_score,CADD_phred \
          --everything \
          --force_overwrite \
          --offline"
