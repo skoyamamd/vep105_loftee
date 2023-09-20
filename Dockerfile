@@ -5,7 +5,7 @@ ENV MAMBA_ROOT_PREFIX=/opt/micromamba
 ENV PATH=$MAMBA_ROOT_PREFIX/bin:$PATH
 ARG VERSION=${VERSION:-105.0}
 
-# Install required packages
+# Install required packages, bcftools, and bedtools
 RUN apt-get update && \
     apt-get install -y \
       bash \
@@ -15,7 +15,13 @@ RUN apt-get update && \
       gnupg2 \
       lsb-release \
       wget \
-      zip && \
+      zip \
+      build-essential \
+      zlib1g-dev \
+      libbz2-dev \
+      liblzma-dev \
+      bcftools \
+      bedtools && \
     rm -r /var/lib/apt/lists/* && \
     rm -r /var/cache/apt/*
 
@@ -46,3 +52,13 @@ RUN rm -r /opt/micromamba/pkgs && \
 # Install BioPerl for Loftee
 RUN vep_install --AUTO a --NO_UPDATE --NO_HTSLIB --DESTDIR $MAMBA_ROOT_PREFIX/share/ensembl-vep-$VERSION* && \
     ln -fs $MAMBA_ROOT_PREFIX/share/ensembl-vep-$VERSION* $MAMBA_ROOT_PREFIX/share/ensembl-vep
+
+# Install htslib for bgzip and tabix
+RUN wget https://github.com/samtools/htslib/releases/download/1.17/htslib-1.17.tar.bz2 && \
+    tar -xf htslib-1.17.tar.bz2 && \
+    cd htslib-1.17 && \
+    ./configure --prefix=/local/ && \
+    make && make install
+
+ENV PATH=/local/bin/:${PATH}
+
