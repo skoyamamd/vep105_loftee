@@ -60,5 +60,19 @@ RUN wget https://github.com/samtools/htslib/releases/download/1.17/htslib-1.17.t
     ./configure --prefix=/local/ && \
     make && make install
 
+# Copy local image
+
+COPY vep_data/human_ancestor.fa.gz /data/
+COPY vep_data/human_ancestor.fa.gz.fai /data/
+COPY vep_data/human_ancestor.fa.gz.gzi /data/
+
+COPY vep_data/loftee.sql /data/
+COPY vep_data/vep_resource_gerp_conservation_scores.homo_sapiens.GRCh38.bw /data/
+
+COPY vep_data/homo_sapiens /data/homo_sapiens/
+
+COPY vep_data/dbNSFP4.3a.thin.txt.gz /data/
+COPY vep_data/dbNSFP4.3a.thin.txt.gz.tbi /data/
+
 ENV PATH=/local/bin/:${PATH}
 
