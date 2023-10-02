@@ -1,12 +1,12 @@
 ## Arguments
 
-export sif=$1
-export input_snp_file=$2
+export singularity_image=$1
+export input_file=$2
 export output_header=$3
 
 ## Convert SNP file to VCF
 
-zcat ${input_snp_file} \
+zcat ${input_file} \
   | sed 's/chr//' \
   | awk -v OFS="\t" '{
     split($1,arr,":"); print arr[1],arr[2],$1,arr[3],arr[4],".",".","."
@@ -19,13 +19,13 @@ zcat ${input_snp_file} \
 loftee_path=loftee_path:/opt/micromamba/share/ensembl-vep-105.0-1
 human_ancestor_fa=human_ancestor_fa:/data/human_ancestor.fa.gz
 conservation_file=conservation_file:/data/loftee.sql
-gerp_bigwig=gerp_bigwig:/data/vep_resource_gerp_conservation_scores.homo_sapiens.GRCh38.bw
+gerp_bigwig=gerp_bigwig:/data/gerp_conservation_scores.homo_sapiens.GRCh38.bw
 dbNSFP=/data/dbNSFP4.3a.thin.txt.gz,REVEL_score,CADD_phred
 popmax=/data/gnomad.exomes.r2.1.1.sites.liftover_grch38_popmax_0.01.tsv.bgz
 
 ## VEP annotation
 
-singularity exec --bind $(pwd):$(pwd) ${sif} \
+singularity exec --bind $(pwd):$(pwd) ${singularity_image} \
   vep \
     -i ${output_header}.vep_annot_tmp.input.vcf.gz \
     -o ${output_header}.vep_annot_tmp.vep.vcf \
@@ -38,27 +38,27 @@ singularity exec --bind $(pwd):$(pwd) ${sif} \
     --offline \
     --dir_cache /data/ \
     --plugin LoF,${loftee_path},${human_ancestor_fa},${conservation_file},${gerp_bigwig} \
-    --plugin dbNSFP,${dbNSFP} 2&1> ${output_header}.log
+    --plugin dbNSFP,${dbNSFP}
 
 ## Index
 
-singularity exec --bind $(pwd):$(pwd) ${sif} \
+singularity exec --bind $(pwd):$(pwd) ${singularity_image} \
   bgzip -f ${output_header}.vep_annot_tmp.vep.vcf
 
-singularity exec --bind $(pwd):$(pwd) ${sif} \
+singularity exec --bind $(pwd):$(pwd) ${singularity_image} \
   tabix -f -s 1 -b 2 -e 2 ${output_header}.vep_annot_tmp.vep.vcf.gz
 
 ## Popmax filter
 
-singularity exec --bind $(pwd):$(pwd) ${sif} \
+singularity exec --bind $(pwd):$(pwd) ${singularity_image} \
   bcftools view \
-    -i'ID!=@gnomad.exomes.r2.1.1.sites.liftover_grch38_popmax_0.01.tsv.bgz' \
+    -i'ID!=@/data/gnomad.exomes.r2.1.1.sites.liftover_grch38_popmax_0.01.tsv.bgz' \
     ${output_header}.vep_annot_tmp.vep.vcf.gz \
     -o ${output_header}.vep_annot_tmp.vep.popmax001.vcf.gz
 
 ## Process output
 
-singularity exec --bind $(pwd):$(pwd) ${sif} \
+singularity exec --bind $(pwd):$(pwd) ${singularity_image} \
   bcftools +split-vep \
     ${output_header}.vep_annot_tmp.vep.popmax001.vcf.gz \
     -d \

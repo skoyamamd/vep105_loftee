@@ -21,12 +21,14 @@ zcat gnomad.exomes.r2.1.1.sites.21.vcf.bgz \
 
 rm gnomad.exomes.r2.1.1.sites.21.vcf.bgz
 
-## Arguments
+## Test run
 
 bash vep105_loftee.sh \
   vep105_loftee.sif \
   gnomad.exomes.r2.1.1.sites.21.toy_input.txt.gz \
   gnomad.exomes.r2.1.1.sites.21.toy_input
+
+## Check output
 
 n=$(zcat gnomad.exomes.r2.1.1.sites.21.toy_input.vep_annot.tsv.gz | wc -l)
 
