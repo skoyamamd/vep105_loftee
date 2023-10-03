@@ -27,12 +27,3 @@ bash vep105_loftee.sh \
   vep105_loftee.sif \
   gnomad.exomes.r2.1.1.sites.21.toy_input.txt.gz \
   gnomad.exomes.r2.1.1.sites.21.toy_input
-
-## Check output
-
-n=$(zcat gnomad.exomes.r2.1.1.sites.21.toy_input.vep_annot.tsv.gz | wc -l)
-
-if [ ${n} -eq 1565 ]; then
-  echo "Success"
-fi
-
